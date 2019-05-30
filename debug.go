@@ -246,7 +246,14 @@ scriptLoop:
 
 	tm.Println(tm.Background(tm.Color(tm.Bold("Stack"), tm.WHITE), tm.MAGENTA))
 	var box *tm.Box
-	if done {
+	if done && !fail {
+		err = vm.CheckErrorCondition(true)
+		if err != nil {
+			done = false
+			fail = true
+		}
+	}
+	if done && !fail {
 		box = tm.NewBox(100|tm.PCT, 3, 0)
 		fmt.Fprintf(box, "%s\n", "Success!!!")
 	} else if fail {
@@ -278,7 +285,6 @@ scriptLoop:
 				term.Sync()
 				done, err = vm.Step()
 				if err != nil {
-					done = true
 					fail = true
 				}
 				goto scriptLoop

@@ -10,16 +10,16 @@
   revision = "c206103e1f37c0c6c5c039706305ea2aa6e8ad3b"
 
 [[projects]]
-  branch = "master"
   digest = "1:1e9a0ec4f7e852123fefad9aadd7647eed1e9fd3716118e99a4b3dc463705c82"
   name = "github.com/dchest/siphash"
   packages = ["."]
   pruneopts = "UT"
   revision = "34f201214d993633bb24f418ba11736ab8b55aa7"
+  version = "v1.2.1"
 
 [[projects]]
   branch = "vm"
-  digest = "1:26514b9d09b4d66cdffd0223975045a15ac966225fcc319e5c0d3327d741a0f6"
+  digest = "1:6a6df973c23d384c13e96aa9ff935fb481b74ef86ecddb08ad65f93b91dbb6af"
   name = "github.com/gcash/bchd"
   packages = [
     "bchec",
@@ -30,7 +30,7 @@
     "wire",
   ]
   pruneopts = "UT"
-  revision = "1dbb88d13af10bec4648268912c1a87a320f60e6"
+  revision = "c9b9dc94b93cc0c909ed29ddbf53477869e4ba51"
 
 [[projects]]
   branch = "master"
@@ -52,7 +52,6 @@
   revision = "050b747bffa06a2effb1af5454753130c41069ab"
 
 [[projects]]
-  branch = "master"
   digest = "1:239c4c7fd2159585454003d9be7207167970194216193a8a210b8d29576f19c9"
   name = "github.com/golang/protobuf"
   packages = [
@@ -63,15 +62,16 @@
     "ptypes/timestamp",
   ]
   pruneopts = "UT"
-  revision = "e91709a02e0e8ff8b86b7aa913fdc9ae9498e825"
+  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
+  version = "v1.3.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:3217800110ab50cd0e0784307be46b5344c0c103dbd15a16d0994ae4abdc96ab"
+  digest = "1:459271b8268fe541549b299f65160b1df5abe9ffef0426cc38607f771dbc6bb4"
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1c38ed7ad0cc3d9e66649ac398c30e45f395c4eb"
+  revision = "c0795c8afcf41dd1d786bebce68636c199b3bb45"
 
 [[projects]]
   digest = "1:0356f3312c9bd1cbeda81505b7fd437501d8e778ab66998ef69f00d7f9b3a0d7"
@@ -91,15 +91,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b69153653dbbbd9b2be2be289dfb94014284c00bb92e73b800f8f8c239c1ca80"
+  digest = "1:1fa95129371749532e2ac8b93a0016c549ebe77f25c6fad296b6ee271fae2fd6"
   name = "golang.org/x/crypto"
   packages = ["ripemd160"]
   pruneopts = "UT"
-  revision = "ff983b9c42bc9fbf91556e191cc8efb585c16908"
+  revision = "20be4c3c3ed52bfccdb2d59a412ee1a936d175a7"
 
 [[projects]]
   branch = "master"
-  digest = "1:07c70ed7db30e61c8e28f5139a426deef24d6be14a16a679f2c38e89b1704475"
+  digest = "1:aa51a5bed0c7c26aadfcc5bf5b2b62c0f43032af5d786a02247f87dfce23cb06"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -111,18 +111,17 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "9ce7a6920f093fc0b908c4a5f66ae049110f417e"
+  revision = "f3200d17e092c607f615320ecaad13d87ad9a2b3"
 
 [[projects]]
   branch = "master"
-  digest = "1:dcd2e9de31e20e01b156288ce4fc239498564295bdbb59d8aaf591af94778162"
+  digest = "1:668e8c66b8895d69391429b0f64a72c35603c94f364c94d4e5fab5053d57a0b6"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "d89cdac9e8725f2aefce25fcbfef41134c9ad412"
+  revision = "6a60838ec2595395fabc7b2e6c2ae9fb5a87722d"
 
 [[projects]]
-  branch = "master"
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
   name = "golang.org/x/text"
   packages = [
@@ -145,18 +144,19 @@
   ]
   pruneopts = "UT"
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:c3076e7defee87de1236f1814beb588f40a75544c60121e6eb38b3b3721783e2"
+  digest = "1:583a0c80f5e3a9343d33aea4aead1e1afcc0043db66fdf961ddd1fe8cd3a4faf"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "357c62f0e4bbba7e6cc403ae09edcf3e2b9028fe"
+  revision = "c2c4e71fbf6989c3e46a18d65cb88c288f8a3a55"
 
 [[projects]]
   branch = "master"
-  digest = "1:b48326b4b02d3e9c6b0b10548b3d9ede39f57a1c750a11869e9f9f26ec5b2c30"
+  digest = "1:45ae4f4de51bc2da3e548a9e4862510f7d81df6c7e8a4f8bbc532cdfaba757bc"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -188,12 +188,13 @@
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
+    "serviceconfig",
     "stats",
     "status",
     "tap",
   ]
   pruneopts = "UT"
-  revision = "d5973a91700d6143b4c45366641bd3911034e10f"
+  revision = "d40a99589506629cb87657c1740d1ffb492c6580"
 
 [solve-meta]
   analyzer-name = "dep"
