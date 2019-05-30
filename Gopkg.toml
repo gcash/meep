@@ -27,7 +27,7 @@
 
 [[constraint]]
   name = "github.com/gcash/bchd"
-  branch = "vm"
+  branch = "master"
 
 [[constraint]]
   branch = "master"

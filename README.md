@@ -6,7 +6,6 @@ Meep is a command line Bitcoin Cash script debugger
 ### Install
 ```
 go get github.com/gcash/meep
-dep ensure
 ```
 
 ### Usage
