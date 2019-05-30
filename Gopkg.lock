@@ -19,7 +19,7 @@
 
 [[projects]]
   branch = "vm"
-  digest = "1:6a6df973c23d384c13e96aa9ff935fb481b74ef86ecddb08ad65f93b91dbb6af"
+  digest = "1:cbd3932ff07dba3f7bb592f80f239e730a456e73ac319c573f7da9e89cfeb6c7"
   name = "github.com/gcash/bchd"
   packages = [
     "bchec",
@@ -30,7 +30,7 @@
     "wire",
   ]
   pruneopts = "UT"
-  revision = "c9b9dc94b93cc0c909ed29ddbf53477869e4ba51"
+  revision = "1a6127fd4fd66b401401fab5461e201aaae4492a"
 
 [[projects]]
   branch = "master"
@@ -119,7 +119,7 @@
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "6a60838ec2595395fabc7b2e6c2ae9fb5a87722d"
+  revision = "ad28b68e88f12448a1685d038ffea87bbbb34148"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -152,11 +152,11 @@
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
   pruneopts = "UT"
-  revision = "c2c4e71fbf6989c3e46a18d65cb88c288f8a3a55"
+  revision = "fb225487d10142b5bcc35abfc6cb9a0609614976"
 
 [[projects]]
   branch = "master"
-  digest = "1:45ae4f4de51bc2da3e548a9e4862510f7d81df6c7e8a4f8bbc532cdfaba757bc"
+  digest = "1:858328f765d7bb37cbdd159661ff17211d797fcb8991d16d1bee1f62511acb67"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -194,7 +194,7 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "d40a99589506629cb87657c1740d1ffb492c6580"
+  revision = "82fdf27702a52ef4c16bbca4c515c45cdec398a9"
 
 [solve-meta]
   analyzer-name = "dep"

@@ -40,7 +40,6 @@ func (x *Debug) Execute(args []string) error {
 		done         bool
 		fail         bool
 	)
-
 	err = term.Init()
 	if err != nil {
 		panic(err)
@@ -129,7 +128,6 @@ func (x *Debug) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
-	vm.SetDebugMode()
 
 	scriptClass, _, _, err := txscript.ExtractPkScriptAddrs(scriptPubkey, &chaincfg.MainNetParams)
 	if err != nil {
@@ -147,6 +145,28 @@ func (x *Debug) Execute(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	var (
+		splitDisassembledRedeemScript []string
+		unExecutedOpcodes             [][]int
+	)
+	splitDisassembledScriptSig := strings.Split(disassembledScriptSig, " ")
+	splitDisassembledScriptPubkey := strings.Split(disassembledScriptPubkey, " ")
+	if isP2SH {
+		redeemScript, err := txscript.ExtractRedeemScript(scriptSig)
+		if err != nil {
+			return err
+		}
+		disassembledRedeemScript, err := txscript.DisasmString(redeemScript)
+		if err != nil {
+			return err
+		}
+		splitDisassembledRedeemScript = strings.Split(disassembledRedeemScript, " ")
+	}
+
+	savedStates := make([]*txscript.Engine, len(splitDisassembledScriptSig)+len(splitDisassembledScriptPubkey)+len(splitDisassembledRedeemScript))
+	stateIndex := 0
+	savedStates[stateIndex] = vm.Clone()
 
 scriptLoop:
 	tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", tm.Width()-8))), tm.BLACK), tm.GREEN))
@@ -171,9 +191,21 @@ scriptLoop:
 			return err
 		}
 		offsetIdx = int(binary.BigEndian.Uint32(append([]byte{0x00, 0x00}, offsetIdxBytes...)))
+
+		if !vm.IsBranchExecuting() && !strings.Contains(s[2], "OP_ENDIF") {
+			contains := false
+			for _, op := range unExecutedOpcodes {
+				if op[0] == scriptIdx && op[1] == offsetIdx {
+					contains = true
+					break
+				}
+			}
+			if !contains {
+				unExecutedOpcodes = append(unExecutedOpcodes, []int{scriptIdx, offsetIdx})
+			}
+		}
 	}
 
-	splitDisassembledScriptSig := strings.Split(disassembledScriptSig, " ")
 	tm.Println(tm.Background(tm.Color(tm.Bold("ScriptSig"), tm.WHITE), tm.BLUE))
 	for i, op := range splitDisassembledScriptSig {
 		if scriptIdx == 0 && offsetIdx == i && !done {
@@ -185,7 +217,6 @@ scriptLoop:
 	}
 	tm.Printf("\n\n")
 
-	splitDisassembledScriptPubkey := strings.Split(disassembledScriptPubkey, " ")
 	tm.Println(tm.Background(tm.Color(tm.Bold("ScriptPubkey"), tm.WHITE), tm.BLUE))
 	for i, op := range splitDisassembledScriptPubkey {
 		if scriptIdx == 1 && offsetIdx == i {
@@ -193,7 +224,7 @@ scriptLoop:
 			tm.Printf(" ")
 		} else {
 			unexecuted := false
-			for _, unex := range vm.GetUnexecutedIndexes() {
+			for _, unex := range unExecutedOpcodes {
 				if unex[0] == 1 && unex[1] == i {
 					tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
 					tm.Printf(" ")
@@ -208,15 +239,6 @@ scriptLoop:
 	tm.Printf("\n\n")
 
 	if isP2SH {
-		redeemScript, err := txscript.ExtractRedeemScript(scriptSig)
-		if err != nil {
-			return err
-		}
-		disassembledRedeemScript, err := txscript.DisasmString(redeemScript)
-		if err != nil {
-			return err
-		}
-		splitDisassembledRedeemScript := strings.Split(disassembledRedeemScript, " ")
 		tm.Println(tm.Background(tm.Color(tm.Bold("RedeemScript"), tm.WHITE), tm.BLUE))
 		for i, op := range splitDisassembledRedeemScript {
 			if scriptIdx == 2 && offsetIdx == i {
@@ -224,8 +246,8 @@ scriptLoop:
 				tm.Printf(" ")
 			} else {
 				unexecuted := false
-				for _, unex := range vm.GetUnexecutedIndexes() {
-					if unex[0] == 2 && unex[1] == i {
+				for _, unex := range unExecutedOpcodes {
+					if unex[0] == 2 && unex[1] == i && scriptIdx >= unex[0] && offsetIdx >= unex[1] {
 						tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
 						tm.Printf(" ")
 						unexecuted = true
@@ -287,12 +309,16 @@ scriptLoop:
 				if err != nil {
 					fail = true
 				}
+				if !done {
+					stateIndex++
+					savedStates[stateIndex] = vm.Clone()
+				}
 				goto scriptLoop
 			case term.KeyF3:
 				term.Sync()
-				err := vm.StepBack()
-				if err != nil {
-					return err
+				if stateIndex > 0 {
+					stateIndex--
+					vm = savedStates[stateIndex].Clone()
 				}
 				goto scriptLoop
 				break
