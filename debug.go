@@ -192,7 +192,17 @@ scriptLoop:
 			tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
 			tm.Printf(" ")
 		} else {
-			tm.Printf("%s ", op)
+			unexecuted := false
+			for _, unex := range vm.GetUnexecutedIndexes() {
+				if unex[0] == 1 && unex[1] == i {
+					tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
+					tm.Printf(" ")
+					unexecuted = true
+				}
+			}
+			if !unexecuted {
+				tm.Printf("%s ", op)
+			}
 		}
 	}
 	tm.Printf("\n\n")
@@ -213,7 +223,17 @@ scriptLoop:
 				tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
 				tm.Printf(" ")
 			} else {
-				tm.Printf("%s ", op)
+				unexecuted := false
+				for _, unex := range vm.GetUnexecutedIndexes() {
+					if unex[0] == 2 && unex[1] == i {
+						tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
+						tm.Printf(" ")
+						unexecuted = true
+					}
+				}
+				if !unexecuted {
+					tm.Printf("%s ", op)
+				}
 			}
 		}
 		tm.Printf("\n\n")
@@ -242,7 +262,7 @@ scriptLoop:
 
 	tm.Println(box.String())
 
-	tm.Printf("%s%s%s%s%s%s\n", "F3", tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN), "F4", tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN), "ESC", tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN))
+	tm.Printf("%s%s%s%s%s%s\n", "F3", tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN), "F4", tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN), "ESC", tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN))
 	tm.Flush()
 
 	for {
@@ -263,9 +283,6 @@ scriptLoop:
 				}
 				goto scriptLoop
 			case term.KeyF3:
-				if done {
-					return nil
-				}
 				term.Sync()
 				err := vm.StepBack()
 				if err != nil {
