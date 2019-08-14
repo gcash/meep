@@ -6,7 +6,7 @@ OSARCH ?= darwin/386 darwin/amd64 dragonfly/amd64 freebsd/386 freebsd/amd64 free
 DIRS ?= darwin_386 darwin_amd64 dragonfly_amd64 freebsd_386 freebsd_amd64 freebsd_arm linux_386 linux_amd64 linux_arm netbsd_386 netbsd_amd64 netbsd_arm openbsd_386 openbsd_amd64 windows_386 windows_amd64
 
 all:
-	go build .
+	env GO111MODULE=on go build .
 
 compile:
 	gox -osarch="$(OSARCH)" -output "$(OUTDIR)/$(APPNAME)-{{.OS}}_{{.Arch}}/$(APPNAME)"
@@ -18,7 +18,7 @@ compile:
 	done
 
 install:
-	go install .
+	env GO111MODULE=on go install .
 
 uninstall:
-	go clean -i
+	env GO111MODULE=on go clean -i
