@@ -1,9 +1,13 @@
 # Temp files
 *~
 
+# VSCode
+.vscode
+
 # Binaries
 bchd
 bchctl
+meep
 
 # Databases
 btcd.db

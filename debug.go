@@ -7,6 +7,9 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	tm "github.com/buger/goterm"
 	"github.com/gcash/bchd/bchrpc/pb"
 	"github.com/gcash/bchd/chaincfg"
@@ -16,8 +19,6 @@ import (
 	term "github.com/nsf/termbox-go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"strings"
-	"time"
 )
 
 // Debug holds the options to the debug command.
@@ -124,7 +125,7 @@ func (x *Debug) Execute(args []string) error {
 		x.InputAmount = resp.Transaction.Outputs[tx.TxIn[x.InputIndex].PreviousOutPoint.Index].Value
 	}
 
-	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, txscript.StandardVerifyFlags, nil, nil, x.InputAmount)
+	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, txscript.StandardVerifyFlags, nil, nil, nil, x.InputAmount)
 	if err != nil {
 		return err
 	}
