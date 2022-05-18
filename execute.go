@@ -6,13 +6,14 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/gcash/bchd/bchrpc/pb"
 	"github.com/gcash/bchd/chaincfg/chainhash"
 	"github.com/gcash/bchd/txscript"
 	"github.com/gcash/bchd/wire"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"time"
 )
 
 // Execute holds the options to the execute command.
@@ -111,7 +112,7 @@ func (x *Execute) Execute(args []string) error {
 		x.InputAmount = resp.Transaction.Outputs[tx.TxIn[x.InputIndex].PreviousOutPoint.Index].Value
 	}
 
-	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, txscript.StandardVerifyFlags, nil, nil, x.InputAmount)
+	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, txscript.StandardVerifyFlags, nil, nil, nil, x.InputAmount)
 	if err != nil {
 		return err
 	}
