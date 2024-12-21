@@ -1,14 +1,19 @@
 # meep
+
+[![Build Status](https://github.com/gcash/meep/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/gcash/meep/actions/workflows/main.yml)
+
 Meep is a command line Bitcoin Cash script debugger
 
 <img src="https://i.imgur.com/Xls1Km8.png">
 
 ### Install
+
 ```
 go get github.com/gcash/meep
 ```
 
 ### Usage
+
 ```
 Usage:
   meep [OPTIONS] debug [debug-OPTIONS]

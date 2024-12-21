@@ -27,7 +27,7 @@ type Execute struct {
 
 // Execute will run the Execute command. This executes the script, prints
 // the result and exists.
-func (x *Execute) Execute(args []string) error {
+func (x *Execute) Execute(_ []string) error {
 	var (
 		txBytes      []byte
 		scriptPubkey []byte
@@ -43,7 +43,8 @@ func (x *Execute) Execute(args []string) error {
 
 		client = pb.NewBchrpcClient(conn)
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
 		resp, err := client.GetRawTransaction(ctx, &pb.GetRawTransactionRequest{
 			Hash: txid[:],
 		})
@@ -77,7 +78,8 @@ func (x *Execute) Execute(args []string) error {
 			client = pb.NewBchrpcClient(conn)
 		}
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
 		resp, err := client.GetTransaction(ctx, &pb.GetTransactionRequest{
 			Hash: tx.TxIn[x.InputIndex].PreviousOutPoint.Hash[:],
 		})
@@ -102,7 +104,8 @@ func (x *Execute) Execute(args []string) error {
 			client = pb.NewBchrpcClient(conn)
 		}
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
 		resp, err := client.GetTransaction(ctx, &pb.GetTransactionRequest{
 			Hash: tx.TxIn[x.InputIndex].PreviousOutPoint.Hash[:],
 		})
@@ -118,8 +121,9 @@ func (x *Execute) Execute(args []string) error {
 	}
 	if err := vm.Execute(); err != nil {
 		return err
-	} else {
-		fmt.Println("Success!!!")
 	}
+
+	fmt.Println("Success!!!")
+
 	return nil
 }

@@ -32,7 +32,7 @@ type Debug struct {
 
 // Execute will run the Debug command. This drops into the terminal debugger and allows
 // us to step forward and backwards.
-func (x *Debug) Execute(args []string) error {
+func (x *Debug) Execute(_ []string) error {
 	var (
 		txBytes      []byte
 		scriptPubkey []byte
@@ -56,7 +56,9 @@ func (x *Debug) Execute(args []string) error {
 
 		client = pb.NewBchrpcClient(conn)
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
 		resp, err := client.GetRawTransaction(ctx, &pb.GetRawTransactionRequest{
 			Hash: txid[:],
 		})
@@ -90,7 +92,8 @@ func (x *Debug) Execute(args []string) error {
 			client = pb.NewBchrpcClient(conn)
 		}
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
 		resp, err := client.GetTransaction(ctx, &pb.GetTransactionRequest{
 			Hash: tx.TxIn[x.InputIndex].PreviousOutPoint.Hash[:],
 		})
@@ -115,7 +118,8 @@ func (x *Debug) Execute(args []string) error {
 			client = pb.NewBchrpcClient(conn)
 		}
 
-		ctx, _ := context.WithTimeout(context.Background(), time.Second*10)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
 		resp, err := client.GetTransaction(ctx, &pb.GetTransactionRequest{
 			Hash: tx.TxIn[x.InputIndex].PreviousOutPoint.Hash[:],
 		})
@@ -340,10 +344,7 @@ scriptLoop:
 					vm = savedStates[stateIndex].Clone()
 				}
 				goto scriptLoop
-				break
 			}
 		}
 	}
-
-	return nil
 }
