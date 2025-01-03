@@ -115,7 +115,8 @@ func (x *Execute) Execute(_ []string) error {
 		x.InputAmount = resp.Transaction.Outputs[tx.TxIn[x.InputIndex].PreviousOutPoint.Index].Value
 	}
 
-	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, txscript.StandardVerifyFlags, nil, nil, nil, x.InputAmount)
+	flags := txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens
+	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, flags, nil, nil, nil, x.InputAmount)
 	if err != nil {
 		return err
 	}
