@@ -9,7 +9,7 @@ Meep is a command line Bitcoin Cash script debugger
 ### Install
 
 ```
-go get github.com/gcash/meep
+go install github.com/gcash/meep@latest
 ```
 
 ### Usage
