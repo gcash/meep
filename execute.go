@@ -115,8 +115,43 @@ func (x *Execute) Execute(_ []string) error {
 		x.InputAmount = resp.Transaction.Outputs[tx.TxIn[x.InputIndex].PreviousOutPoint.Index].Value
 	}
 
+	utxoCache := txscript.NewUtxoCache()
+	for i, txIn := range tx.TxIn {
+		if client == nil {
+			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			if err != nil {
+				return err
+			}
+
+			client = pb.NewBchrpcClient(conn)
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+		defer cancel()
+
+		resp, err := client.GetTransaction(ctx, &pb.GetTransactionRequest{
+			Hash: txIn.PreviousOutPoint.Hash[:],
+		})
+		if err != nil {
+			return err
+		}
+		output := resp.Transaction.Outputs[txIn.PreviousOutPoint.Index]
+
+		txOut := wire.TxOut{}
+		txOut.Value = output.Value
+		txOut.PkScript = output.PubkeyScript
+		txOut.TokenData = wire.TokenData{}
+		if output.CashToken != nil {
+			copy(txOut.TokenData.CategoryID[:], output.CashToken.CategoryId)
+			txOut.TokenData.BitField = output.CashToken.Bitfield[0]
+			txOut.TokenData.Amount = output.CashToken.Amount
+			txOut.TokenData.Commitment = output.CashToken.Commitment
+		}
+		utxoCache.AddEntry(i, txOut)
+	}
+
 	flags := txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens
-	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, flags, nil, nil, nil, x.InputAmount)
+	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, flags, nil, nil, utxoCache, x.InputAmount)
 	if err != nil {
 		return err
 	}
