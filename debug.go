@@ -174,7 +174,7 @@ func (x *Debug) Execute(_ []string) error {
 	if err != nil {
 		return err
 	}
-	isP2SH := scriptClass == txscript.ScriptHashTy
+	isP2SH := (scriptClass == txscript.ScriptHashTy) || (scriptClass == txscript.ScriptHash32Ty)
 
 	scriptSig := tx.TxIn[x.InputIndex].SignatureScript
 
