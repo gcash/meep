@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"crypto/tls"
 	tm "github.com/buger/goterm"
 	"github.com/gcash/bchd/bchrpc/pb"
 	"github.com/gcash/bchd/chaincfg"
@@ -23,11 +24,23 @@ import (
 
 // Debug holds the options to the debug command.
 type Debug struct {
-	Transaction  string `short:"t" long:"tx" description:"the full transaction hex or BCH mainnet txid. If only a txid is provided the transaction will be looked up via the RPC server."`
-	InputIndex   int    `short:"i" long:"idx" description:"the input index to debug"`
-	InputAmount  int64  `short:"a" long:"amt" description:"the amount of the input (in satoshis) we're debugging. This can be omitted if the transaction is in the BCH blockchain as it will be looked up via the RPC server."`
-	ScriptPubkey string `short:"s" long:"pkscript" description:"the input's scriptPubkey. This can be omitted if the transaction is in the BCH blockchain as it will be looked up via the RPC server."`
-	RPCServer    string `long:"rpcserver" description:"A hostname:port for a gRPC API to use to fetch the transaction and scriptPubkey if not providing through the options."`
+	Transaction      string `short:"t" long:"tx" description:"the full transaction hex or BCH mainnet txid. If only a txid is provided the transaction will be looked up via the RPC server."`
+	InputIndex       int    `short:"i" long:"idx" description:"the input index to debug"`
+	InputAmount      int64  `short:"a" long:"amt" description:"the amount of the input (in satoshis) we're debugging. This can be omitted if the transaction is in the BCH blockchain as it will be looked up via the RPC server."`
+	ScriptPubkey     string `short:"s" long:"pkscript" description:"the input's scriptPubkey. This can be omitted if the transaction is in the BCH blockchain as it will be looked up via the RPC server."`
+	RPCServer        string `long:"rpcserver" description:"A hostname:port for a gRPC API to use to fetch the transaction and scriptPubkey if not providing through the options."`
+	RPCAllowInsecure bool   `long:"rpcallowinsecure" description:"Allow insecure TLS (skip certificate validation)."`
+}
+
+func dial(x *Debug) (*grpc.ClientConn, error) {
+	if x.RPCAllowInsecure {
+		tlsCfg := &tls.Config{
+			InsecureSkipVerify: true,
+		}
+		creds := credentials.NewTLS(tlsCfg)
+		return grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(creds))
+	}
+	return grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 }
 
 // Execute will run the Debug command. This drops into the terminal debugger and allows
@@ -49,7 +62,7 @@ func (x *Debug) Execute(_ []string) error {
 	defer term.Close()
 
 	if txid, err := chainhash.NewHashFromStr(x.Transaction); err == nil {
-		conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+		conn, err := dial(x)
 		if err != nil {
 			return err
 		}
@@ -84,7 +97,7 @@ func (x *Debug) Execute(_ []string) error {
 
 	if x.ScriptPubkey == "" {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := dial(x)
 			if err != nil {
 				return err
 			}
@@ -110,7 +123,7 @@ func (x *Debug) Execute(_ []string) error {
 
 	if x.InputAmount == 0 {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := dial(x)
 			if err != nil {
 				return err
 			}
@@ -132,7 +145,7 @@ func (x *Debug) Execute(_ []string) error {
 	utxoCache := txscript.NewUtxoCache()
 	for i, txIn := range tx.TxIn {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := dial(x)
 			if err != nil {
 				return err
 			}
