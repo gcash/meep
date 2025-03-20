@@ -209,6 +209,7 @@ func (x *Debug) Execute(_ []string) error {
 	stateIndex := 0
 	savedStates[stateIndex] = vm.Clone()
 
+	var fastForward = false
 scriptLoop:
 	tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", tm.Width()-8))), tm.BLACK), tm.GREEN))
 	tm.Flush()
@@ -353,6 +354,20 @@ scriptLoop:
 	tm.Printf("%s%s%s%s%s%s\n", "F3", tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN), "F4", tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN), "ESC", tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN))
 	tm.Flush()
 
+	if fastForward {
+		term.Sync()
+		done, err = vm.Step()
+		if err != nil {
+			fail = true
+		}
+		if !done {
+			stateIndex++
+			savedStates[stateIndex] = vm.Clone()
+		}
+		fastForward = !done && !fail && !vm.IsBranchExecuting()
+		goto scriptLoop
+	}
+
 	for {
 		switch ev := term.PollEvent(); ev.Type {
 		case term.EventKey:
@@ -372,6 +387,7 @@ scriptLoop:
 					stateIndex++
 					savedStates[stateIndex] = vm.Clone()
 				}
+				fastForward = (!done && !vm.IsBranchExecuting())
 				goto scriptLoop
 			case term.KeyF3:
 				term.Sync()
