@@ -177,7 +177,7 @@ func (x *Debug) Execute(_ []string) error {
 		utxoCache.AddEntry(i, txOut)
 	}
 
-	flags := txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens
+	flags := txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens | txscript.ScriptAllowMay2025
 	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, flags, nil, nil, utxoCache, x.InputAmount)
 	if err != nil {
 		return err
