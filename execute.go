@@ -36,7 +36,7 @@ func (x *Execute) Execute(_ []string) error {
 	)
 
 	if txid, err := chainhash.NewHashFromStr(x.Transaction); err == nil {
-		conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+		conn, err := grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 		if err != nil {
 			return err
 		}
@@ -70,7 +70,7 @@ func (x *Execute) Execute(_ []string) error {
 
 	if x.ScriptPubkey == "" {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 			if err != nil {
 				return err
 			}
@@ -96,7 +96,7 @@ func (x *Execute) Execute(_ []string) error {
 
 	if x.InputAmount == 0 {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 			if err != nil {
 				return err
 			}
@@ -118,7 +118,7 @@ func (x *Execute) Execute(_ []string) error {
 	utxoCache := txscript.NewUtxoCache()
 	for i, txIn := range tx.TxIn {
 		if client == nil {
-			conn, err := grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+			conn, err := grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 			if err != nil {
 				return err
 			}

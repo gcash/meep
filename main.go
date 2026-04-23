@@ -14,13 +14,13 @@ var (
 )
 
 func main() {
-	parser.AddCommand("debug",
+	_, _ = parser.AddCommand("debug",
 		"Enter Debugger",
 		"Enter the script debugging mode",
 		&Debug{
 			RPCServer: defaultRPCServer,
 		})
-	parser.AddCommand("execute",
+	_, _ = parser.AddCommand("execute",
 		"Execute a script",
 		"Execute a script, print the result and exit.",
 		&Execute{

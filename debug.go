@@ -38,9 +38,9 @@ func dial(x *Debug) (*grpc.ClientConn, error) {
 			InsecureSkipVerify: true,
 		}
 		creds := credentials.NewTLS(tlsCfg)
-		return grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(creds))
+		return grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(creds))
 	}
-	return grpc.Dial(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
+	return grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 }
 
 // Execute will run the Debug command. This drops into the terminal debugger and allows
@@ -224,7 +224,7 @@ func (x *Debug) Execute(_ []string) error {
 
 	var fastForward = false
 scriptLoop:
-	tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", tm.Width()-8))), tm.BLACK), tm.GREEN))
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", tm.Width()-8))), tm.BLACK), tm.GREEN))
 	tm.Flush()
 	var (
 		dissasm              string
@@ -261,67 +261,67 @@ scriptLoop:
 		}
 	}
 
-	tm.Println(tm.Background(tm.Color(tm.Bold("ScriptSig"), tm.WHITE), tm.BLUE))
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("ScriptSig"), tm.WHITE), tm.BLUE))
 	for i, op := range splitDisassembledScriptSig {
 		if scriptIdx == 0 && offsetIdx == i && !done {
-			tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
-			tm.Printf(" ")
+			_, _ = tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
+			_, _ = tm.Printf(" ")
 		} else {
-			tm.Printf("%s ", op)
+			_, _ = tm.Printf("%s ", op)
 		}
 	}
-	tm.Printf("\n\n")
+	_, _ = tm.Printf("\n\n")
 
-	tm.Println(tm.Background(tm.Color(tm.Bold("ScriptPubkey"), tm.WHITE), tm.BLUE))
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("ScriptPubkey"), tm.WHITE), tm.BLUE))
 	for i, op := range splitDisassembledScriptPubkey {
 		if scriptIdx == 1 && offsetIdx == i {
-			tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
-			tm.Printf(" ")
+			_, _ = tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
+			_, _ = tm.Printf(" ")
 		} else {
 			unexecuted := false
 			for _, unex := range unExecutedOpcodes {
 				if unex[0] == 1 && unex[1] == i {
-					tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
-					tm.Printf(" ")
+					_, _ = tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
+					_, _ = tm.Printf(" ")
 					unexecuted = true
 				}
 			}
 			if !unexecuted {
-				tm.Printf("%s ", op)
+				_, _ = tm.Printf("%s ", op)
 			}
 		}
 	}
-	tm.Printf("\n\n")
+	_, _ = tm.Printf("\n\n")
 
 	if isP2SH {
-		tm.Println(tm.Background(tm.Color(tm.Bold("RedeemScript"), tm.WHITE), tm.BLUE))
+		_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("RedeemScript"), tm.WHITE), tm.BLUE))
 		for i, op := range splitDisassembledRedeemScript {
 			if scriptIdx == 2 && offsetIdx == i {
-				tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
-				tm.Printf(" ")
+				_, _ = tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.BLACK), tm.WHITE), op)
+				_, _ = tm.Printf(" ")
 			} else {
 				unexecuted := false
 				for _, unex := range unExecutedOpcodes {
 					if unex[0] == 2 && unex[1] == i && scriptIdx >= unex[0] && offsetIdx >= unex[1] {
-						tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
-						tm.Printf(" ")
+						_, _ = tm.Printf(tm.Background(tm.Color(tm.Bold("%s"), tm.RED), tm.BLACK), op)
+						_, _ = tm.Printf(" ")
 						unexecuted = true
 					}
 				}
 				if !unexecuted {
-					tm.Printf("%s ", op)
+					_, _ = tm.Printf("%s ", op)
 				}
 			}
 		}
-		tm.Printf("\n\n")
+		_, _ = tm.Printf("\n\n")
 	}
 
 	fmt.Println()
 
-	tm.Println(tm.Background(tm.Color(tm.Bold("Next Instruction"), tm.WHITE), tm.CYAN))
-	tm.Printf("%s\n\n", dissasm)
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Next Instruction"), tm.WHITE), tm.CYAN))
+	_, _ = tm.Printf("%s\n\n", dissasm)
 
-	tm.Println(tm.Background(tm.Color(tm.Bold("Stack"), tm.WHITE), tm.MAGENTA))
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Stack"), tm.WHITE), tm.MAGENTA))
 	var box *tm.Box
 	if done && !fail {
 		err = vm.CheckErrorCondition(true)
@@ -332,23 +332,23 @@ scriptLoop:
 	}
 	if done && !fail {
 		box = tm.NewBox(100|tm.PCT, 3, 0)
-		fmt.Fprintf(box, "%s\n", "Success!!!")
+		_, _ = fmt.Fprintf(box, "%s\n", "Success!!!")
 	} else if fail {
 		box = tm.NewBox(100|tm.PCT, 3, 0)
-		fmt.Fprintf(box, "%s %s\n", "Fail :(", err)
+		_, _ = fmt.Fprintf(box, "%s %s\n", "Fail :(", err)
 	} else {
 		box = tm.NewBox(100|tm.PCT, len(vm.GetStack())+2, 0)
 		stack := vm.GetStack()
 		for i := len(stack) - 1; i >= 0; i-- {
-			fmt.Fprintf(box, "%s\n", hex.EncodeToString(stack[i]))
+			_, _ = fmt.Fprintf(box, "%s\n", hex.EncodeToString(stack[i]))
 		}
 	}
 
-	tm.Println(box.String())
+	_, _ = tm.Println(box.String())
 
 	altstack := vm.GetAltStack()
 	if len(altstack) > 0 && !done && !fail {
-		tm.Println(tm.Background(tm.Color(tm.Bold("Alt Stack"), tm.WHITE), tm.MAGENTA))
+		_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Alt Stack"), tm.WHITE), tm.MAGENTA))
 		var box *tm.Box
 		if done && !fail {
 			err = vm.CheckErrorCondition(true)
@@ -359,16 +359,16 @@ scriptLoop:
 		}
 		box = tm.NewBox(100|tm.PCT, len(vm.GetAltStack())+2, 0)
 		for i := len(altstack) - 1; i >= 0; i-- {
-			fmt.Fprintf(box, "%s\n", hex.EncodeToString(altstack[i]))
+			_, _ = fmt.Fprintf(box, "%s\n", hex.EncodeToString(altstack[i]))
 		}
-		tm.Println(box.String())
+		_, _ = tm.Println(box.String())
 	}
 
-	tm.Printf("%s%s%s%s%s%s\n", "F3", tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN), "F4", tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN), "ESC", tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN))
+	_, _ = tm.Printf("%s%s%s%s%s%s\n", "F3", tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN), "F4", tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN), "ESC", tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN))
 	tm.Flush()
 
 	if fastForward {
-		term.Sync()
+		_ = term.Sync()
 		done, err = vm.Step()
 		if err != nil {
 			fail = true
@@ -391,7 +391,7 @@ scriptLoop:
 				if done {
 					return nil
 				}
-				term.Sync()
+				_ = term.Sync()
 				done, err = vm.Step()
 				if err != nil {
 					fail = true
@@ -403,7 +403,7 @@ scriptLoop:
 				fastForward = (!done && !vm.IsBranchExecuting())
 				goto scriptLoop
 			case term.KeyF3:
-				term.Sync()
+				_ = term.Sync()
 				if stateIndex > 0 {
 					stateIndex--
 					vm = savedStates[stateIndex].Clone()
