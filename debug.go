@@ -66,6 +66,12 @@ func (x *Debug) Execute(_ []string) error {
 		client       pb.BchrpcClient
 		err          error
 	)
+	if tm.Width() <= 0 || tm.Height() <= 0 {
+		return errNoTerminal
+	}
+	restore := enableVirtualTerminal()
+	defer restore()
+
 	err = term.Init()
 	if err != nil {
 		panic(err)
@@ -229,8 +235,10 @@ func (x *Debug) Execute(_ []string) error {
 
 	var fastForward = false
 scriptLoop:
-	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", tm.Width()-8))), tm.BLACK), tm.GREEN))
-	tm.Flush()
+	tm.Clear()
+	tm.MoveCursor(1, 1)
+	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", max(tm.Width()-8, 0)))), tm.BLACK), tm.GREEN))
+	_, _ = tm.Println()
 	var (
 		dissasm              string
 		scriptIdx, offsetIdx int
@@ -321,8 +329,6 @@ scriptLoop:
 		_, _ = tm.Printf("\n\n")
 	}
 
-	fmt.Println()
-
 	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Next Instruction"), tm.WHITE), tm.CYAN))
 	_, _ = tm.Printf("%s\n\n", dissasm)
 
@@ -354,16 +360,15 @@ scriptLoop:
 		_, _ = tm.Println(box.String())
 	}
 
-	footer := "F3" + tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN)
+	footer := "F3/Left/p" + tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN)
 	if !st.done {
-		footer += "F4" + tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN)
+		footer += "F4/Right/n" + tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN)
 	}
-	footer += "ESC" + tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN)
+	footer += "ESC/q" + tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN)
 	_, _ = tm.Println(footer)
-	tm.Flush()
+	flush()
 
 	if fastForward {
-		_ = term.Sync()
 		st.next()
 		fastForward = !st.done && !st.vm.IsBranchExecuting()
 		goto scriptLoop
@@ -372,20 +377,18 @@ scriptLoop:
 	for {
 		switch ev := term.PollEvent(); ev.Type {
 		case term.EventKey:
-			switch ev.Key {
-			case term.KeyEsc:
+			switch {
+			case ev.Key == term.KeyEsc || ev.Ch == 'q':
 				return nil
-			case term.KeyF4:
+			case ev.Key == term.KeyF4 || ev.Key == term.KeyArrowRight || ev.Ch == 'n':
 				if st.done {
-					// Stay on the result. F3 steps back and ESC quits.
+					// Stay on the result. Stepping back and quitting still work.
 					continue
 				}
-				_ = term.Sync()
 				st.next()
 				fastForward = !st.done && !st.vm.IsBranchExecuting()
 				goto scriptLoop
-			case term.KeyF3:
-				_ = term.Sync()
+			case ev.Key == term.KeyF3 || ev.Key == term.KeyArrowLeft || ev.Ch == 'p':
 				st.back()
 				goto scriptLoop
 			}

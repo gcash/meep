@@ -39,6 +39,14 @@ Help Options:
 
 ```
 
+### Keys
+
+| Key                    | Action       |
+| ---------------------- | ------------ |
+| F4, Right arrow or `n` | Step forward |
+| F3, Left arrow or `p`  | Step back    |
+| Esc or `q`             | Quit         |
+
 ### Examples
 
 ```
@@ -51,3 +59,13 @@ meep debug --tx=3332086562ccde663bec7928352098992b9e626bb8f1e95486d618219598c578
 // Last will
 meep debug --tx=b0f79eea9e05fe83e198efff4363e3e347d5efd77a22fbf39a09347162fb2560
 ```
+
+### Windows
+
+The debugger needs a Windows console. Git Bash's default window (MinTTY) is not one, so in Git Bash start meep through winpty:
+
+```
+winpty meep debug --tx=048e890c1931a8c3f908d5826943c47021c5bfebc6c8ef96684207c53cfa7ea3
+```
+
+Alternatively, run meep from Windows Terminal, PowerShell or cmd.exe.
