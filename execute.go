@@ -150,8 +150,7 @@ func (x *Execute) Execute(_ []string) error {
 		utxoCache.AddEntry(i, txOut)
 	}
 
-	flags := txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens | txscript.ScriptAllowMay2025 | txscript.ScriptAllowMay2026
-	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, flags, nil, nil, utxoCache, x.InputAmount)
+	vm, err := txscript.NewEngine(scriptPubkey, tx, x.InputIndex, engineFlags, nil, nil, utxoCache, x.InputAmount)
 	if err != nil {
 		return err
 	}

@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+	"github.com/gcash/bchd/txscript"
 	"github.com/jessevdk/go-flags"
 	"os"
 )
 
 const defaultRPCServer = "bchd.greyh.at:8335"
+
+// engineFlags are the script flags that the debug and execute commands use.
+const engineFlags = txscript.StandardVerifyFlags | txscript.ScriptAllowCashTokens | txscript.ScriptAllowMay2025 | txscript.ScriptAllowMay2026
 
 var (
 	opts   Opts
