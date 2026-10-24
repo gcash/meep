@@ -41,11 +41,12 @@ Help Options:
 
 ### Keys
 
-| Key                    | Action       |
-| ---------------------- | ------------ |
-| F4, Right arrow or `n` | Step forward |
-| F3, Left arrow or `p`  | Step back    |
-| Esc or `q`             | Quit         |
+| Key                    | Action                                |
+| ---------------------- | ------------------------------------- |
+| F4, Right arrow or `n` | Step forward                          |
+| F3, Left arrow or `p`  | Step back                             |
+| `h`                    | Show or hide help for the next opcode |
+| Esc or `q`             | Quit                                  |
 
 ### Examples
 

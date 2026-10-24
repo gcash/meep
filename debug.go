@@ -234,13 +234,14 @@ func (x *Debug) Execute(_ []string) error {
 	st := newStepper(vm)
 
 	var fastForward = false
+	var showHelp = false
 scriptLoop:
 	tm.Clear()
 	tm.MoveCursor(1, 1)
 	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold(fmt.Sprintf("%s%s", "Debugger", strings.Repeat(" ", max(tm.Width()-8, 0)))), tm.BLACK), tm.GREEN))
 	_, _ = tm.Println()
 	var (
-		dissasm              string
+		dissasm, opName      string
 		scriptIdx, offsetIdx int
 	)
 	if !st.done {
@@ -249,6 +250,9 @@ scriptLoop:
 			return err
 		}
 		s := strings.Split(dissasm, ":")
+		if fields := strings.Fields(s[2]); len(fields) > 0 {
+			opName = fields[0]
+		}
 		scriptIdxBytes, err := hex.DecodeString(s[0])
 		if err != nil {
 			return err
@@ -330,7 +334,13 @@ scriptLoop:
 	}
 
 	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Next Instruction"), tm.WHITE), tm.CYAN))
-	_, _ = tm.Printf("%s\n\n", dissasm)
+	_, _ = tm.Println(dissasm)
+	if showHelp {
+		for _, line := range wrap(describeOpcode(opName), tm.Width()) {
+			_, _ = tm.Println(line)
+		}
+	}
+	_, _ = tm.Println()
 
 	_, _ = tm.Println(tm.Background(tm.Color(tm.Bold("Stack"), tm.WHITE), tm.MAGENTA))
 	var box *tm.Box
@@ -363,6 +373,7 @@ scriptLoop:
 	footer := "F3/Left/p" + tm.Background(tm.Color(tm.Bold("Step Back"), tm.WHITE), tm.CYAN)
 	if !st.done {
 		footer += "F4/Right/n" + tm.Background(tm.Color(tm.Bold("Step Forward"), tm.WHITE), tm.CYAN)
+		footer += "h" + tm.Background(tm.Color(tm.Bold("Help"), tm.WHITE), tm.CYAN)
 	}
 	footer += "ESC/q" + tm.Background(tm.Color(tm.Bold("Quit"), tm.WHITE), tm.CYAN)
 	_, _ = tm.Println(footer)
@@ -390,6 +401,9 @@ scriptLoop:
 				goto scriptLoop
 			case ev.Key == term.KeyF3 || ev.Key == term.KeyArrowLeft || ev.Ch == 'p':
 				st.back()
+				goto scriptLoop
+			case ev.Ch == 'h':
+				showHelp = !showHelp
 				goto scriptLoop
 			}
 		}

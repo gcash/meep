@@ -32,6 +32,28 @@ func fitFrame(frame string, width, height int) string {
 	return strings.Join(lines, "\n")
 }
 
+// wrap breaks text into lines of at most width characters, splitting at
+// spaces. A word longer than width gets a line of its own.
+func wrap(text string, width int) []string {
+	var lines []string
+	line := ""
+	for _, word := range strings.Fields(text) {
+		switch {
+		case line == "":
+			line = word
+		case width <= 0 || utf8.RuneCountInString(line)+1+utf8.RuneCountInString(word) <= width:
+			line += " " + word
+		default:
+			lines = append(lines, line)
+			line = word
+		}
+	}
+	if line != "" {
+		lines = append(lines, line)
+	}
+	return lines
+}
+
 // flush draws the frame in goterm's buffer, cut to fit the window, and empties
 // the buffer. It replaces goterm's Flush, which stops without emptying the
 // buffer when the frame is taller than the window and so freezes the display.

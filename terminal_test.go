@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"reflect"
 	"testing"
 
 	tm "github.com/buger/goterm"
@@ -50,6 +51,25 @@ func TestFitFrame(t *testing.T) {
 	for _, test := range tests {
 		if got := fitFrame(test.frame, test.width, test.height); got != test.want {
 			t.Errorf("%s: got %q, want %q", test.name, got, test.want)
+		}
+	}
+}
+
+func TestWrap(t *testing.T) {
+	tests := []struct {
+		text  string
+		width int
+		want  []string
+	}{
+		{"one two three", 7, []string{"one two", "three"}},
+		{"one two three", 13, []string{"one two three"}},
+		{"a verylongword b", 5, []string{"a", "verylongword", "b"}},
+		{"one two", 0, []string{"one two"}},
+		{"", 10, nil},
+	}
+	for _, test := range tests {
+		if got := wrap(test.text, test.width); !reflect.DeepEqual(got, test.want) {
+			t.Errorf("wrap(%q, %d): got %q, want %q", test.text, test.width, got, test.want)
 		}
 	}
 }
