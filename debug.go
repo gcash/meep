@@ -43,6 +43,20 @@ func dial(x *Debug) (*grpc.ClientConn, error) {
 	return grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
 }
 
+// redeemScriptOps disassembles the redeem script that a P2SH scriptSig pushes,
+// one entry per instruction. If the scriptSig pushes nothing, it returns a
+// note saying so instead, and the engine reports the failure when it runs.
+func redeemScriptOps(scriptSig []byte) []string {
+	redeemScript, err := txscript.ExtractRedeemScript(scriptSig)
+	if err != nil {
+		return []string{fmt.Sprintf("(missing: %v)", err)}
+	}
+	// A malformed redeem script disassembles as far as it parses, followed by
+	// [error]. The engine fails when it tries to run it.
+	disassembled, _ := txscript.DisasmString(redeemScript)
+	return strings.Split(disassembled, " ")
+}
+
 // Execute will run the Debug command. This drops into the terminal debugger and allows
 // us to step forward and backwards.
 func (x *Debug) Execute(_ []string) error {
@@ -91,6 +105,10 @@ func (x *Debug) Execute(_ []string) error {
 
 	if len(tx.TxIn) == 0 {
 		return errors.New("transaction has no inputs")
+	}
+
+	if x.InputIndex < 0 || x.InputIndex >= len(tx.TxIn) {
+		return fmt.Errorf("input index %d is out of range: the transaction's last input is %d", x.InputIndex, len(tx.TxIn)-1)
 	}
 
 	if x.ScriptPubkey == "" {
@@ -204,15 +222,7 @@ func (x *Debug) Execute(_ []string) error {
 	splitDisassembledScriptSig := strings.Split(disassembledScriptSig, " ")
 	splitDisassembledScriptPubkey := strings.Split(disassembledScriptPubkey, " ")
 	if isP2SH {
-		redeemScript, err := txscript.ExtractRedeemScript(scriptSig)
-		if err != nil {
-			return err
-		}
-		disassembledRedeemScript, err := txscript.DisasmString(redeemScript)
-		if err != nil {
-			return err
-		}
-		splitDisassembledRedeemScript = strings.Split(disassembledRedeemScript, " ")
+		splitDisassembledRedeemScript = redeemScriptOps(scriptSig)
 	}
 
 	st := newStepper(vm)

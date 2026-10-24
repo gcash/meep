@@ -68,6 +68,10 @@ func (x *Execute) Execute(_ []string) error {
 		return errors.New("transaction has no inputs")
 	}
 
+	if x.InputIndex < 0 || x.InputIndex >= len(tx.TxIn) {
+		return fmt.Errorf("input index %d is out of range: the transaction's last input is %d", x.InputIndex, len(tx.TxIn)-1)
+	}
+
 	if x.ScriptPubkey == "" {
 		if client == nil {
 			conn, err := grpc.NewClient(x.RPCServer, grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(nil, "")))
